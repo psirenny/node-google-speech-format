@@ -1,0 +1,34 @@
+{
+  "author": "Dennis Torres <djtorres0@gmail.com>",
+  "dependencies": {
+    "lodash": "*",
+    "temp": "*"
+  },
+  "description": "Google Speech audio formatter.",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  },
+  "engines": {
+    "node": ">=0.8.x"
+  },
+  "gitHead": "a5094705349adf734ca3c9f8a2accfb4db2fbd04",
+  "keywords": [
+    "node",
+    "google",
+    "speech",
+    "format"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "google-speech-format",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/psirenny/node-google-speech-format.git"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test"
+  },
+  "version": "0.1.0"
+}
