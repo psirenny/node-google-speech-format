@@ -1,6 +1,8 @@
 var _ = require('lodash')
   , exec = require('child_process').exec
-  , temp = require('temp');
+  , fs = require('fs')
+  , temp = require('temp')
+  , util = require('util');
 
 module.exports = function (options, callback) {
   var file = temp.path();
@@ -20,10 +22,10 @@ module.exports = function (options, callback) {
 
   exec(cmd, function (err) {
     if (err) callback(err);
-    if (!options.clipSize) return callback(null, [file]);
+    if (!options.clipSize) return callback(null, [file + '.flac']);
 
     // get audio duration
-    cmd = util.format('sox --i -D "%s"', file);
+    cmd = util.format('sox --i -D "%s.flac"', file);
 
     exec(cmd, function (err, duration) {
       if (err) return callback(err);
@@ -38,7 +40,7 @@ module.exports = function (options, callback) {
 
         var count = Math.ceil(duration / options.clipSize)
           , name = function (i) { return file + i + '.flac'; }
-          , files = _.range(i, count).map(name).value();
+          , files = _.range(1, count + 1).map(name);
 
         callback(null, files);
       });
