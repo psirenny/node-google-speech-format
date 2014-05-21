@@ -11,7 +11,7 @@ module.exports = function (options, callback) {
     options = {file: options};
   }
 
-  _.merge(options, {
+  _.defaults(options, {
     clipSize: 15,
     sampleRate: 16000
   });
