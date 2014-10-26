@@ -1,11 +1,12 @@
-var _ = require('lodash')
-  , exec = require('child_process').exec
-  , fs = require('fs')
-  , temp = require('temp')
-  , util = require('util');
+var _ = require('lodash');
+var exec = require('child_process').exec;
+var fs = require('fs');
+var temp = require('temp');
+var util = require('util');
 
 module.exports = function (options, callback) {
   var file = temp.path();
+  var tempfile = null;
 
   if (typeof options === 'string') {
     options = {file: options};
@@ -15,6 +16,14 @@ module.exports = function (options, callback) {
     clipSize: 15,
     sampleRate: 16000
   });
+
+  if (Buffer.isBuffer(options.file)) {
+    var buf = options.file;
+    var suffix = '.' + options.filetype;
+    tempfile = temp.openSync({suffix: suffix});
+    fs.writeSync(tempfile.fd, buf, 0, buf.length);
+    options.file = tempfile.path;
+  }
 
   // normalize audio
   var cmd = 'sox "%s" -r %d "%s.flac" gain -n -5 silence 1 5 2%%';
@@ -36,11 +45,12 @@ module.exports = function (options, callback) {
 
       exec(cmd, function (err) {
         fs.unlink(file + '.flac');
+        if (tempfile) fs.unlink(tempfile.path);
         if (err) return callback(err);
 
-        var count = Math.ceil(duration / options.clipSize)
-          , name = function (i) { return file + i + '.flac'; }
-          , files = _.range(1, count + 1).map(name);
+        var count = Math.ceil(duration / options.clipSize);
+        var name = function (i) { return file + i + '.flac'; };
+        var files = _.range(1, count + 1).map(name);
 
         callback(null, files);
       });

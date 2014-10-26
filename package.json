@@ -1,13 +1,13 @@
 {
   "author": "Dennis Torres <djtorres0@gmail.com>",
   "dependencies": {
-    "lodash": "*",
-    "temp": "*"
+    "lodash": "^2.4.1",
+    "temp": "^0.8.1"
   },
   "description": "Google Speech audio formatter.",
   "devDependencies": {
-    "chai": "*",
-    "mocha": "*"
+    "chai": "^1.9.2",
+    "mocha": "^2.0.1"
   },
   "engines": {
     "node": ">=0.8.x"
@@ -30,5 +30,5 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha test"
   },
-  "version": "0.1.1"
+  "version": "0.2.0"
 }
