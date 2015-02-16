@@ -1,11 +1,11 @@
 var _ = require('lodash');
-var exec = require('child_process').exec;
+var async = require('async');
+var ffmpeg = require('fluent-ffmpeg');
 var fs = require('fs');
 var temp = require('temp');
 var util = require('util');
 
 module.exports = function (options, callback) {
-  var file = temp.path();
   var tempfile = null;
 
   if (typeof options === 'string') {
@@ -25,35 +25,34 @@ module.exports = function (options, callback) {
     options.file = tempfile.path;
   }
 
-  // normalize audio
-  var cmd = 'sox "%s" -r %d "%s.flac" gain -n -5 silence 1 5 2%%';
-  cmd = util.format(cmd, options.file, options.sampleRate, file);
-
-  exec(cmd, function (err) {
+  ffmpeg.ffprobe(options.file, function (err, info) {
     if (err) callback(err);
-    if (!options.clipSize) return callback(null, [file + '.flac']);
+    var size = info.format.duration;
+    var clipCount = Math.ceil(size / options.clipSize);
+    var clips = _.range(clipCount);
 
-    // get audio duration
-    cmd = util.format('sox --i -D "%s.flac"', file);
+    function each(clip, callback) {
+      var output = temp.path({suffix: '-' + clip + '.flac'});
 
-    exec(cmd, function (err, duration) {
-      if (err) return callback(err);
+      ffmpeg()
+        .on('error', callback)
+        .on('end', function () {
+          callback(null, output);
+        })
+        .input(options.file)
+        .setStartTime(clip * options.clipSize)
+        .duration(options.clipSize)
+        .output(output)
+        .audioFrequency(options.sampleRate)
+        .toFormat('flac')
+        .run();
+    }
 
-      // split into sound clips
-      cmd = 'sox "%s.flac" "%s%%1n.flac" trim 0 %d : newfile : restart';
-      cmd = util.format(cmd, file, file, options.clipSize);
+    function done(err, files) {
+      if (tempfile) fs.unlink(tempfile);
+      callback(err, files);
+    }
 
-      exec(cmd, function (err) {
-        fs.unlink(file + '.flac');
-        if (tempfile) fs.unlink(tempfile.path);
-        if (err) return callback(err);
-
-        var count = Math.ceil(duration / options.clipSize);
-        var name = function (i) { return file + i + '.flac'; };
-        var files = _.range(1, count + 1).map(name);
-
-        callback(null, files);
-      });
-    });
+    async.map(clips, each, done);
   });
 };

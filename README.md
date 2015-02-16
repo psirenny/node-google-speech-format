@@ -1,4 +1,4 @@
 Google Speech Format
 ====================
 
-It requires [SoX](http://sox.sourceforge.net) compiled with flac support in order to work.
+It requires [FFmpeg](https://www.ffmpeg.org) compiled with flac support in order to work.
