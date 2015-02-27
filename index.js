@@ -26,7 +26,7 @@ module.exports = function (options, callback) {
   }
 
   ffmpeg.ffprobe(options.file, function (err, info) {
-    if (err) callback(err);
+    if (err) return callback(err);
     var size = info.format.duration;
     var clipCount = Math.ceil(size / options.clipSize);
     var clips = _.range(clipCount);
